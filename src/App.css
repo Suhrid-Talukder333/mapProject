@@ -1,0 +1,62 @@
+body{
+  display: flex;
+  justify-content: center;
+}
+
+.app{
+  height:800px;
+  width: 95vw;
+}
+
+.map {
+  height: 100%;
+  width: 100%;
+}
+
+.data-list-div{
+  width:200px;
+  height: auto;
+  background-color: antiquewhite;
+  border: 1px solid palevioletred;
+  border-radius: 15px;
+  cursor:pointer;
+  margin:10px;
+  padding:10px;
+}
+
+input {
+  margin:10px;
+  padding:10px;
+  border-radius: 15px;
+}
+
+.marker1 {
+  background-image: url('https://w7.pngwing.com/pngs/734/808/png-transparent-computer-icons-google-map-maker-map-marker-black-map-vector-map.png');
+  background-size: cover;
+  width:22px;
+  height:22px;
+  background-color: yellow;
+  border: 1px solid red;
+  border-radius: 11px;
+}
+
+.marker2{
+  background-image: url('https://w7.pngwing.com/pngs/734/808/png-transparent-computer-icons-google-map-maker-map-marker-black-map-vector-map.png');
+  background-size: cover;
+  width:22px;
+  height:22px;
+  background-color: yellow;
+  border: 1px solid blue;
+  border-radius: 11px;
+}
+
+.location-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.destination-list{
+  height: 200px;
+  overflow: scroll;
+}
