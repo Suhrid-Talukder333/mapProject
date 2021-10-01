@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as tomtom from "@tomtom-international/web-sdk-maps";
+import * as services from '@tomtom-international/web-sdk-services';
 import data from './data.json';
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import './App.css';
@@ -14,10 +15,15 @@ const App = () => {
   const [secondLocationLat, setSecondLocationLat] = useState('');
   const [searchFirstLocation, setSearchFirstLocation] = useState('');
   const [searchSecondLocation, setSearchSecondLocation] = useState('');
+  const [firstDestinationChanged, setFirstDestinationChanged] = useState(false);
+  const [secondDestinationChanged, setSecondDestinationChanged] = useState(false);
   const [mapZoom, setMapZoom] = useState(14);
+  const [calculate, setCalculate] = useState(false);
+  const [info, setInfo] = useState('');
 
   const handleFirstChange = (e) => {
     setSearchFirstLocation(e.target.value);
+
   }
   const handleSecondChange = (e) => {
     setSearchSecondLocation(e.target.value);
@@ -30,6 +36,30 @@ const App = () => {
   const handleSecondLocationClick = (lng, lat) => {
     setSecondLocationLng(lng);
     setSecondLocationLat(lat);
+  }
+
+  const drawRoute = (geoJson, map) => {
+    if (map.getLayer('route')) {
+      map.removeLayer('route')
+      map.removeSource('route')
+    }
+    map.addLayer({
+      id: 'route',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        data: geoJson
+      },
+      paint: {
+        'line-color': '#4a90e2',
+        'line-width': 6
+
+      }
+    })
+  }
+
+  const handleCalculate = () => {
+    setCalculate(!calculate);
   }
 
   useEffect(() => {
@@ -72,9 +102,29 @@ const App = () => {
       setLtd(secondLocationLat);
     }
 
+    const recalculateRoutes = () => {
+      services.services
+        .calculateRoute({
+          key: "QBftCcz5sM6G5RK1GCBXilcMmc8g8ONA",
+          locations: [
+            { lat: firstLocationLat, lng: firstLocationLng },
+            { lat: secondLocationLat, lng: secondLocationLng }]
+        })
+        .then((routeData) => {
+          const geoJson = routeData.toGeoJson();
+          console.log(geoJson);
+          setInfo(geoJson);
+          drawRoute(geoJson, map)
+        })
+    }
+
+    if (calculate) {
+      recalculateRoutes();
+    }
+
     setMap(map);
     return () => map.remove();
-  }, [ltd, lng, firstLocationLng, firstLocationLat, secondLocationLng, secondLocationLat]);
+  }, [ltd, lng, firstLocationLng, firstLocationLat, secondLocationLng, secondLocationLat, calculate, mapZoom]);
 
   return (
     <>
@@ -92,6 +142,15 @@ const App = () => {
                 return null;
               })}
             </div>
+          </div>
+          <div>
+            <button onClick={handleCalculate}>Calculate</button>
+            {info && (<div>
+              <p>Distance in Meters : {info.features[0].properties.summary.lengthInMeters} Meters</p>
+              <p>Traffic Delay in Seconds {info.features[0].properties.summary.trafficDelayInSeconds}</p>
+              <p>Traffic Length in Meters {info.features[0].properties.summary.trafficLengthInMeters}</p>
+              <p>Travel Time in Seconds {info.features[0].properties.summary.travelTimeInSeconds}</p>
+            </div>)}
           </div>
           <div className="second-destination">
             <input type="text" aria-label="secondLocation" placeholder="give me some" value={searchSecondLocation} onChange={handleSecondChange} />
